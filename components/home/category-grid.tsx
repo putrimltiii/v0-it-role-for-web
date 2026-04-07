@@ -48,10 +48,14 @@ export function CategoryGrid() {
               href={category.href}
               className="group relative aspect-[3/4] overflow-hidden bg-card"
             >
-              {/* Placeholder background */}
-              <div className="absolute inset-0 bg-secondary transition-transform duration-500 group-hover:scale-105">
-                <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/20 to-transparent" />
-              </div>
+              {/* Category Image */}
+              <Image
+                src={category.image}
+                alt={category.name}
+                fill
+                className="object-cover transition-transform duration-500 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/20 to-transparent" />
               
               {/* Content */}
               <div className="absolute inset-0 flex flex-col justify-end p-6">

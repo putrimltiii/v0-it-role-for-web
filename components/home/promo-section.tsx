@@ -1,4 +1,5 @@
 import Link from "next/link"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 
 export function PromoSection() {
@@ -8,6 +9,12 @@ export function PromoSection() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Promo 1 - Limited Edition */}
           <div className="relative aspect-[4/3] lg:aspect-auto lg:min-h-[500px] bg-secondary overflow-hidden group">
+            <Image
+              src="/images/promo-limited.jpg"
+              alt="Limited Edition Collection"
+              fill
+              className="object-cover"
+            />
             <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/50 to-transparent" />
             <div className="absolute inset-0 flex flex-col justify-center p-8 md:p-12">
               <span className="text-xs tracking-[0.3em] uppercase text-accent">
@@ -30,6 +37,13 @@ export function PromoSection() {
 
           {/* Promo 2 - Sale */}
           <div className="relative aspect-[4/3] lg:aspect-auto lg:min-h-[500px] bg-accent overflow-hidden group">
+            <Image
+              src="/images/promo-sale.jpg"
+              alt="Sale Collection"
+              fill
+              className="object-cover"
+            />
+            <div className="absolute inset-0 bg-accent/70" />
             <div className="absolute inset-0 flex flex-col justify-center p-8 md:p-12">
               <span className="text-xs tracking-[0.3em] uppercase text-accent-foreground/70">
                 End of Season
