@@ -2,11 +2,12 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { Heart, Minus, Plus, Star, Truck, RefreshCw, Shield } from "lucide-react"
+import { Heart, Minus, Plus, Star, Truck, RefreshCw, Shield, CheckCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { formatPrice } from "@/lib/format"
 import type { Product } from "@/lib/data/products"
 import { cn } from "@/lib/utils"
+import { useCartStore } from "@/lib/store/cart"
 
 interface ProductDetailsProps {
   product: Product
@@ -16,6 +17,20 @@ export function ProductDetails({ product }: ProductDetailsProps) {
   const [selectedSize, setSelectedSize] = useState<string | null>(null)
   const [selectedColor, setSelectedColor] = useState(product.colors[0])
   const [quantity, setQuantity] = useState(1)
+  const [added, setAdded] = useState(false)
+  const addItem = useCartStore((state) => state.addItem)
+
+  const handleAddToCart = () => {
+    if (!selectedSize) return
+    addItem({
+      product,
+      quantity,
+      size: selectedSize,
+      color: selectedColor.name,
+    })
+    setAdded(true)
+    setTimeout(() => setAdded(false), 2000)
+  }
 
   const discount = product.originalPrice
     ? Math.round((1 - product.price / product.originalPrice) * 100)
@@ -216,10 +231,23 @@ export function ProductDetails({ product }: ProductDetailsProps) {
             <div className="mt-8 flex gap-4">
               <Button
                 size="lg"
-                className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 h-14 text-sm tracking-wider uppercase"
+                onClick={handleAddToCart}
                 disabled={!selectedSize}
+                className={cn(
+                  "flex-1 h-14 text-sm tracking-wider uppercase transition-colors",
+                  added
+                    ? "bg-green-600 text-white hover:bg-green-600"
+                    : "bg-primary text-primary-foreground hover:bg-primary/90"
+                )}
               >
-                Add to Cart
+                {added ? (
+                  <span className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4" />
+                    Added to Cart
+                  </span>
+                ) : (
+                  "Add to Cart"
+                )}
               </Button>
               <Button
                 variant="outline"
