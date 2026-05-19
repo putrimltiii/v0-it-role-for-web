@@ -5,12 +5,26 @@ import { Heart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { formatPrice } from "@/lib/format"
 import type { Product } from "@/lib/data/products"
+import { useWishlistStore } from "@/lib/store/wishlist"
+import { cn } from "@/lib/utils"
 
 interface ProductCardProps {
   product: Product
 }
 
 export function ProductCard({ product }: ProductCardProps) {
+  const { addItem, removeItem, isInWishlist } = useWishlistStore()
+  const wishlisted = isInWishlist(product.id)
+
+  const handleWishlist = (e: React.MouseEvent) => {
+    e.preventDefault()
+    if (wishlisted) {
+      removeItem(product.id)
+    } else {
+      addItem(product)
+    }
+  }
+
   return (
     <article className="group">
       <Link href={`/products/${product.slug}`} className="block">
@@ -22,7 +36,7 @@ export function ProductCard({ product }: ProductCardProps) {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
           </div>
-          
+
           {/* Badges */}
           <div className="absolute top-3 left-3 flex flex-col gap-2">
             {product.isNew && (
@@ -42,12 +56,9 @@ export function ProductCard({ product }: ProductCardProps) {
             variant="ghost"
             size="icon"
             className="absolute top-3 right-3 bg-background/80 hover:bg-background opacity-0 group-hover:opacity-100 transition-opacity"
-            onClick={(e) => {
-              e.preventDefault()
-              // Add to wishlist logic
-            }}
+            onClick={handleWishlist}
           >
-            <Heart className="h-4 w-4" />
+            <Heart className={cn("h-4 w-4", wishlisted ? "fill-red-500 text-red-500" : "")} />
           </Button>
 
           {/* Quick add overlay */}
