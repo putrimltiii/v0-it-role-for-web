@@ -15,10 +15,18 @@ export default function CartPage() {
   const shipping = subtotal >= 300000 ? 0 : 15000
   const total = subtotal + shipping
 
+  const handleDecrease = (productId: string, size: string, color: string, currentQty: number) => {
+    if (currentQty <= 1) {
+      removeItem(productId, size, color)
+    } else {
+      updateQuantity(productId, size, color, currentQty - 1)
+    }
+  }
+
   return (
     <main className="min-h-screen bg-background">
       <Header />
-      
+
       <div className="pt-24 pb-16">
         <div className="px-6 py-12 border-b border-border">
           <div className="max-w-7xl mx-auto">
@@ -87,9 +95,7 @@ export default function CartPage() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            onClick={() =>
-                              updateQuantity(item.product.id, item.size, item.color, item.quantity - 1)
-                            }
+                            onClick={() => handleDecrease(item.product.id, item.size, item.color, item.quantity)}
                             className="h-8 w-8"
                           >
                             <Minus className="h-3 w-3" />
