@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { ChevronLeft, CreditCard, Wallet, Building2, QrCode } from "lucide-react"
@@ -38,6 +38,13 @@ export default function CheckoutPage() {
     province: "",
     postalCode: "",
   })
+
+  useEffect(() => {
+    const savedUser = localStorage.getItem('uw-user')
+    if (!savedUser) {
+      router.push('/account/login')
+    }
+  }, [router])
 
   const subtotal = getTotalPrice()
   const freeShippingThreshold = 300000
