@@ -1,7 +1,8 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Menu, X, Search, Heart, ShoppingBag, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -17,14 +18,33 @@ const navigation = [
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [searchOpen, setSearchOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState("")
   const [mounted, setMounted] = useState(false)
+  const searchInputRef = useRef<HTMLInputElement>(null)
+  const router = useRouter()
   const getTotalItems = useCartStore((state) => state.getTotalItems)
-  
+
   useEffect(() => {
     setMounted(true)
   }, [])
-  
+
+  useEffect(() => {
+    if (searchOpen) {
+      setTimeout(() => searchInputRef.current?.focus(), 50)
+    }
+  }, [searchOpen])
+
   const cartCount = mounted ? getTotalItems() : 0
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (searchQuery.trim()) {
+      router.push(`/products?search=${encodeURIComponent(searchQuery.trim())}`)
+      setSearchOpen(false)
+      setSearchQuery("")
+    }
+  }
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
@@ -64,7 +84,12 @@ export function Header() {
 
         {/* Right actions */}
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" className="text-foreground hidden md:flex">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-foreground hidden md:flex"
+            onClick={() => setSearchOpen(true)}
+          >
             <Search className="h-5 w-5" />
             <span className="sr-only">Search</span>
           </Button>
@@ -93,6 +118,40 @@ export function Header() {
           </Link>
         </div>
       </nav>
+
+      {/* Search overlay */}
+      {searchOpen && (
+        <div className="fixed inset-0 z-50 bg-background/90 backdrop-blur-sm flex items-start justify-center pt-24 px-6">
+          <div className="w-full max-w-2xl">
+            <form onSubmit={handleSearch} className="relative">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+              <input
+                ref={searchInputRef}
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Cari produk..."
+                className="w-full bg-background border border-border rounded-none pl-12 pr-12 py-4 text-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-foreground transition-colors"
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="absolute right-2 top-1/2 -translate-y-1/2"
+                onClick={() => {
+                  setSearchOpen(false)
+                  setSearchQuery("")
+                }}
+              >
+                <X className="h-5 w-5" />
+              </Button>
+            </form>
+            <p className="mt-3 text-xs text-muted-foreground tracking-wider uppercase">
+              Tekan Enter untuk mencari
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Mobile menu */}
       <div
@@ -135,13 +194,15 @@ export function Header() {
             >
               Account
             </Link>
-            <Link
-              href="/search"
-              onClick={() => setMobileMenuOpen(false)}
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors uppercase tracking-wider"
+            <button
+              onClick={() => {
+                setMobileMenuOpen(false)
+                setSearchOpen(true)
+              }}
+              className="text-left text-sm text-muted-foreground hover:text-foreground transition-colors uppercase tracking-wider"
             >
               Search
-            </Link>
+            </button>
           </div>
         </div>
       </div>
