@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { Minus, Plus, Trash2, ShoppingBag } from "lucide-react"
 import { Header } from "@/components/layout/header"
 import { Footer } from "@/components/layout/footer"
@@ -60,12 +61,26 @@ export default function CartPage() {
                     key={`${item.product.id}-${item.size}-${item.color}`}
                     className="flex gap-6 pb-6 border-b border-border"
                   >
-                    {/* Product image placeholder */}
-                    <div className="w-24 h-32 bg-secondary flex-shrink-0 flex items-center justify-center">
-                      <svg className="w-8 h-8 text-muted-foreground opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
-                    </div>
+                    {/* Product image */}
+                    <Link href={`/products/${item.product.slug}`} className="flex-shrink-0">
+                      <div className="w-24 h-32 bg-secondary relative overflow-hidden">
+                        {item.product.images && item.product.images[0] ? (
+                          <Image
+                            src={item.product.images[0]}
+                            alt={item.product.name}
+                            fill
+                            className="object-cover"
+                            sizes="96px"
+                          />
+                        ) : (
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <svg className="w-8 h-8 text-muted-foreground opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                          </div>
+                        )}
+                      </div>
+                    </Link>
 
                     {/* Product details */}
                     <div className="flex-1">
