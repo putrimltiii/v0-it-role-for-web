@@ -390,7 +390,7 @@ export default function CheckoutPage() {
                         >
                           <div className="w-20 h-24 bg-secondary flex-shrink-0 relative overflow-hidden">
                             <Image
-                              src={item.product.image}
+                              src={item.product.images[0]}
                               alt={item.product.name}
                               fill
                               className="object-cover"
