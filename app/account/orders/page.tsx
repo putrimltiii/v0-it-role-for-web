@@ -1,29 +1,43 @@
-import Link from "next/link"
-import { Package, ArrowRight } from "lucide-react"
+"use client"
 
-const orders = [
-  {
-    id: "UW12345678",
-    date: "15 Maret 2026",
-    status: "Delivered",
-    total: 447000,
-    items: 3,
-  },
-  {
-    id: "UW12345679",
-    date: "28 Februari 2026",
-    status: "Delivered",
-    total: 249000,
-    items: 1,
-  },
-]
+import Link from "next/link"
+import { useEffect, useState } from "react"
+import { Package, ArrowRight } from "lucide-react"
+import { fetchUserOrders, type Order } from "@/lib/supabase/orders"
+import { formatPrice } from "@/lib/format"
 
 export default function OrdersPage() {
+  const [orders, setOrders] = useState<Order[]>([])
+  const [loading, setLoading] = useState(true)
+  const [userEmail, setUserEmail] = useState("")
+
+  useEffect(() => {
+    const stored = localStorage.getItem("uw-user")
+    if (stored) {
+      const user = JSON.parse(stored)
+      setUserEmail(user.email || "")
+    }
+  }, [])
+
+  useEffect(() => {
+    async function loadOrders() {
+      if (userEmail) {
+        setLoading(true)
+        const fetchedOrders = await fetchUserOrders(userEmail)
+        setOrders(fetchedOrders)
+        setLoading(false)
+      }
+    }
+
+    loadOrders()
+  }, [userEmail])
   return (
     <div className="space-y-8">
       <h2 className="text-2xl font-medium text-foreground">My Orders</h2>
 
-      {orders.length > 0 ? (
+      {loading ? (
+        <p className="text-muted-foreground">Loading orders...</p>
+      ) : orders.length > 0 ? (
         <div className="space-y-4">
           {orders.map((order) => (
             <div
@@ -31,12 +45,16 @@ export default function OrdersPage() {
               className="bg-card border border-border p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4"
             >
               <div>
-                <p className="font-medium text-foreground">Order #{order.id}</p>
+                <p className="font-medium text-foreground">Order #{order.order_number}</p>
                 <p className="text-sm text-muted-foreground">
-                  {order.date} · {order.items} {order.items === 1 ? "item" : "items"}
+                  {new Date(order.date).toLocaleDateString('id-ID', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                  })} · {order.items.length} {order.items.length === 1 ? "item" : "items"}
                 </p>
                 <p className="text-sm font-medium text-foreground mt-1">
-                  Rp {order.total.toLocaleString("id-ID")}
+                  {formatPrice(order.total)}
                 </p>
               </div>
               <div className="flex items-center gap-4">

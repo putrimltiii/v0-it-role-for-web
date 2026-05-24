@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { useCartStore } from "@/lib/store/cart"
 import { formatPrice } from "@/lib/format"
 import { cn } from "@/lib/utils"
+import { createOrder } from "@/lib/supabase/orders"
 
 const paymentMethods = [
   { id: "bank", name: "Bank Transfer", icon: Building2, description: "BCA, Mandiri, BNI, BRI" },
@@ -28,6 +29,7 @@ export default function CheckoutPage() {
   const [step, setStep] = useState(1)
   const [shippingMethod, setShippingMethod] = useState(shippingMethods[0])
   const [paymentMethod, setPaymentMethod] = useState(paymentMethods[0])
+  const [userEmail, setUserEmail] = useState("")
   const [formData, setFormData] = useState({
     email: "",
     phone: "",
@@ -43,6 +45,9 @@ export default function CheckoutPage() {
     const savedUser = localStorage.getItem('uw-user')
     if (!savedUser) {
       router.push('/account/login')
+    } else {
+      const user = JSON.parse(savedUser)
+      setUserEmail(user.email || "")
     }
   }, [router])
 
@@ -61,9 +66,24 @@ export default function CheckoutPage() {
     if (step < 3) {
       setStep(step + 1)
     } else {
-      // Process order
-      clearCart()
-      router.push("/checkout/success")
+      // Process order - save to Supabase then redirect
+      const orderNumber = `UW${Date.now()}`
+      const orderItems = items.map(item => ({
+        id: item.id,
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity,
+      }))
+
+      createOrder(userEmail, orderNumber, orderItems, total).then(() => {
+        clearCart()
+        router.push("/checkout/success")
+      }).catch(error => {
+        console.error('Error creating order:', error)
+        // Still redirect even if Supabase save fails
+        clearCart()
+        router.push("/checkout/success")
+      })
     }
   }
 
