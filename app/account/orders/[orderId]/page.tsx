@@ -1,253 +1,140 @@
-'use client'
+import Link from "next/link"
+import { ChevronLeft, Package, MapPin, CreditCard } from "lucide-react"
 
-import Link from 'next/link'
-import { ArrowLeft, Package, Truck, CheckCircle } from 'lucide-react'
-import { useParams } from 'next/navigation'
-
-// Mock order data - in a real app, this would come from a database
-const ordersDatabase: Record<string, any> = {
-  'UW12345678': {
-    id: 'UW12345678',
-    date: '15 Maret 2026',
-    status: 'Delivered',
-    statusSteps: [
-      { label: 'Order Placed', date: '15 Maret 2026', completed: true },
-      { label: 'Processing', date: '16 Maret 2026', completed: true },
-      { label: 'Shipped', date: '17 Maret 2026', completed: true },
-      { label: 'Delivered', date: '20 Maret 2026', completed: true },
-    ],
-    total: 447000,
-    subtotal: 425000,
-    tax: 22000,
+const ordersData: Record<string, {
+  id: string
+  date: string
+  status: string
+  total: number
+  subtotal: number
+  shipping: number
+  paymentMethod: string
+  shippingAddress: string
+  items: { name: string; size: string; color: string; qty: number; price: number; image: string }[]
+}> = {
+  UW12345678: {
+    id: "UW12345678",
+    date: "15 Maret 2026",
+    status: "Delivered",
+    subtotal: 747000,
     shipping: 0,
+    total: 447000,
+    paymentMethod: "Transfer Bank BCA",
+    shippingAddress: "Jl. Sudirman No. 12, Jakarta Selatan, DKI Jakarta 12190",
     items: [
-      {
-        id: 1,
-        name: 'Premium T-Shirt',
-        price: 149000,
-        quantity: 2,
-        image: '/images/product-1.jpg',
-      },
-      {
-        id: 2,
-        name: 'Casual Jeans',
-        price: 299000,
-        quantity: 1,
-        image: '/images/product-2.jpg',
-      },
+      { name: "Urban Classic Hoodie", size: "M", color: "Black", qty: 1, price: 249000, image: "/images/product-1.jpg" },
+      { name: "Cargo Street Pants", size: "32", color: "Olive", qty: 1, price: 299000, image: "/images/product-2.jpg" },
+      { name: "Essential Tee", size: "L", color: "White", qty: 1, price: 149000, image: "/images/product-3.jpg" },
     ],
-    shippingAddress: {
-      name: 'John Doe',
-      street: 'Jl. Sudirman No. 123',
-      city: 'Jakarta',
-      state: 'DKI Jakarta',
-      zipCode: '12190',
-      country: 'Indonesia',
-      phone: '+62 812-345-6789',
-    },
   },
-  'UW12345679': {
-    id: 'UW12345679',
-    date: '28 Februari 2026',
-    status: 'Delivered',
-    statusSteps: [
-      { label: 'Order Placed', date: '28 Februari 2026', completed: true },
-      { label: 'Processing', date: '1 Maret 2026', completed: true },
-      { label: 'Shipped', date: '3 Maret 2026', completed: true },
-      { label: 'Delivered', date: '7 Maret 2026', completed: true },
-    ],
+  UW12345679: {
+    id: "UW12345679",
+    date: "28 Februari 2026",
+    status: "Delivered",
+    subtotal: 249000,
+    shipping: 0,
     total: 249000,
-    subtotal: 225000,
-    tax: 11250,
-    shipping: 12750,
+    paymentMethod: "GoPay",
+    shippingAddress: "Jl. Sudirman No. 12, Jakarta Selatan, DKI Jakarta 12190",
     items: [
-      {
-        id: 3,
-        name: 'Summer Dress',
-        price: 225000,
-        quantity: 1,
-        image: '/images/product-3.jpg',
-      },
+      { name: "Urban Classic Hoodie", size: "L", color: "Cream", qty: 1, price: 249000, image: "/images/product-1.jpg" },
     ],
-    shippingAddress: {
-      name: 'Jane Smith',
-      street: 'Jl. Gatot Subroto No. 456',
-      city: 'Bandung',
-      state: 'Jawa Barat',
-      zipCode: '40123',
-      country: 'Indonesia',
-      phone: '+62 812-987-6543',
-    },
   },
 }
 
-export default function OrderDetailPage() {
-  const params = useParams()
-  const orderId = params?.orderId as string
-  const order = ordersDatabase[orderId]
+export default function OrderDetailPage({ params }: { params: { orderId: string } }) {
+  const order = ordersData[params.orderId]
 
   if (!order) {
     return (
-      <div className="space-y-6">
-        <Link
-          href="/account/orders"
-          className="inline-flex items-center gap-2 text-foreground hover:text-muted-foreground transition-colors"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to Orders
+      <div className="text-center py-16">
+        <Package className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+        <h2 className="text-xl font-medium text-foreground mb-2">Order not found</h2>
+        <Link href="/account/orders" className="text-sm text-muted-foreground hover:text-foreground underline">
+          Back to orders
         </Link>
-        <div className="bg-card border border-border p-12 text-center">
-          <Package className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-          <p className="text-foreground font-medium mb-2">Order Not Found</p>
-          <p className="text-muted-foreground">
-            We couldn&apos;t find order #{orderId}
-          </p>
-        </div>
       </div>
     )
   }
 
   return (
     <div className="space-y-8">
+      {/* Back */}
+      <Link
+        href="/account/orders"
+        className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+      >
+        <ChevronLeft className="h-4 w-4" />
+        Back to Orders
+      </Link>
+
       {/* Header */}
-      <div>
-        <Link
-          href="/account/orders"
-          className="inline-flex items-center gap-2 text-foreground hover:text-muted-foreground transition-colors mb-6"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to Orders
-        </Link>
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-medium text-foreground">
-              Order #{order.id}
-            </h1>
-            <p className="text-sm text-muted-foreground mt-1">{order.date}</p>
-          </div>
-          <span className="inline-flex items-center px-4 py-2 bg-accent/20 text-accent font-medium text-sm tracking-wider uppercase w-fit">
-            {order.status}
-          </span>
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-medium text-foreground">Order #{order.id}</h2>
+          <p className="text-sm text-muted-foreground mt-1">{order.date}</p>
         </div>
+        <span className="inline-flex items-center px-4 py-2 bg-accent/20 text-accent text-sm tracking-wider uppercase w-fit">
+          {order.status}
+        </span>
       </div>
 
-      {/* Order Timeline */}
-      <div className="bg-card border border-border p-6">
-        <h2 className="text-lg font-medium text-foreground mb-6">
-          Order Status
-        </h2>
-        <div className="space-y-4">
-          {order.statusSteps.map((step: any, index: number) => (
-            <div key={index} className="flex items-start gap-4">
-              <div className="flex-shrink-0">
-                {step.completed ? (
-                  <div className="flex items-center justify-center h-8 w-8 bg-accent text-white">
-                    <CheckCircle className="h-5 w-5" />
-                  </div>
-                ) : (
-                  <div className="flex items-center justify-center h-8 w-8 border-2 border-border bg-background">
-                    <Truck className="h-4 w-4 text-muted-foreground" />
-                  </div>
-                )}
-              </div>
-              <div className="flex-1 pt-1">
-                <p className="font-medium text-foreground">{step.label}</p>
-                <p className="text-sm text-muted-foreground">{step.date}</p>
-              </div>
-            </div>
-          ))}
+      {/* Items */}
+      <div className="bg-card border border-border">
+        <div className="px-6 py-4 border-b border-border">
+          <h3 className="font-medium text-foreground flex items-center gap-2">
+            <Package className="h-4 w-4" /> Items Ordered
+          </h3>
         </div>
-      </div>
-
-      {/* Order Items */}
-      <div className="bg-card border border-border p-6">
-        <h2 className="text-lg font-medium text-foreground mb-6">
-          Order Items
-        </h2>
-        <div className="space-y-4">
-          {order.items.map((item: any) => (
-            <div
-              key={item.id}
-              className="flex gap-4 pb-4 border-b border-border last:border-b-0"
-            >
-              <div className="h-20 w-20 bg-muted flex-shrink-0 flex items-center justify-center">
-                <Package className="h-8 w-8 text-muted-foreground" />
+        <div className="divide-y divide-border">
+          {order.items.map((item, i) => (
+            <div key={i} className="px-6 py-4 flex items-center gap-4">
+              <div className="w-16 h-20 bg-secondary flex-shrink-0 overflow-hidden">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
               </div>
-              <div className="flex-1">
+              <div className="flex-1 min-w-0">
                 <p className="font-medium text-foreground">{item.name}</p>
-                <p className="text-sm text-muted-foreground">
-                  Quantity: {item.quantity}
+                <p className="text-sm text-muted-foreground mt-0.5">
+                  Size: {item.size} · Color: {item.color} · Qty: {item.qty}
                 </p>
               </div>
-              <div className="text-right pt-1">
-                <p className="font-medium text-foreground">
-                  Rp {item.price.toLocaleString('id-ID')}
-                </p>
-              </div>
+              <p className="font-medium text-foreground">
+                Rp {item.price.toLocaleString("id-ID")}
+              </p>
             </div>
           ))}
         </div>
-      </div>
-
-      <div className="grid md:grid-cols-2 gap-6">
-        {/* Order Summary */}
-        <div className="bg-card border border-border p-6">
-          <h2 className="text-lg font-medium text-foreground mb-6">
-            Order Summary
-          </h2>
-          <div className="space-y-3">
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Subtotal</span>
-              <span className="text-foreground">
-                Rp {order.subtotal.toLocaleString('id-ID')}
-              </span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Tax</span>
-              <span className="text-foreground">
-                Rp {order.tax.toLocaleString('id-ID')}
-              </span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Shipping</span>
-              <span className="text-foreground">
-                {order.shipping === 0
-                  ? 'Free'
-                  : `Rp ${order.shipping.toLocaleString('id-ID')}`}
-              </span>
-            </div>
-            <div className="border-t border-border pt-3 flex justify-between">
-              <span className="font-medium text-foreground">Total</span>
-              <span className="font-medium text-lg text-foreground">
-                Rp {order.total.toLocaleString('id-ID')}
-              </span>
-            </div>
+        {/* Totals */}
+        <div className="px-6 py-4 border-t border-border space-y-2">
+          <div className="flex justify-between text-sm text-muted-foreground">
+            <span>Subtotal</span>
+            <span>Rp {order.subtotal.toLocaleString("id-ID")}</span>
+          </div>
+          <div className="flex justify-between text-sm text-muted-foreground">
+            <span>Shipping</span>
+            <span>{order.shipping === 0 ? "Free" : `Rp ${order.shipping.toLocaleString("id-ID")}`}</span>
+          </div>
+          <div className="flex justify-between font-medium text-foreground pt-2 border-t border-border">
+            <span>Total</span>
+            <span>Rp {order.total.toLocaleString("id-ID")}</span>
           </div>
         </div>
+      </div>
 
-        {/* Shipping Address */}
+      {/* Info */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-card border border-border p-6">
-          <h2 className="text-lg font-medium text-foreground mb-6">
-            Shipping Address
-          </h2>
-          <div className="space-y-2 text-sm">
-            <p className="font-medium text-foreground">
-              {order.shippingAddress.name}
-            </p>
-            <p className="text-muted-foreground">
-              {order.shippingAddress.street}
-            </p>
-            <p className="text-muted-foreground">
-              {order.shippingAddress.city}, {order.shippingAddress.state}{' '}
-              {order.shippingAddress.zipCode}
-            </p>
-            <p className="text-muted-foreground">
-              {order.shippingAddress.country}
-            </p>
-            <p className="text-muted-foreground mt-3">
-              {order.shippingAddress.phone}
-            </p>
-          </div>
+          <h3 className="font-medium text-foreground flex items-center gap-2 mb-3">
+            <MapPin className="h-4 w-4" /> Shipping Address
+          </h3>
+          <p className="text-sm text-muted-foreground">{order.shippingAddress}</p>
+        </div>
+        <div className="bg-card border border-border p-6">
+          <h3 className="font-medium text-foreground flex items-center gap-2 mb-3">
+            <CreditCard className="h-4 w-4" /> Payment Method
+          </h3>
+          <p className="text-sm text-muted-foreground">{order.paymentMethod}</p>
         </div>
       </div>
     </div>
