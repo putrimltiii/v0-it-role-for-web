@@ -16,9 +16,9 @@ const ordersData: Record<string, {
     id: "UW12345678",
     date: "15 Maret 2026",
     status: "Delivered",
-    subtotal: 747000,
+    subtotal: 697000,
     shipping: 0,
-    total: 447000,
+    total: 697000,
     paymentMethod: "Transfer Bank BCA",
     shippingAddress: "Jl. Sudirman No. 12, Jakarta Selatan, DKI Jakarta 12190",
     items: [
@@ -42,8 +42,9 @@ const ordersData: Record<string, {
   },
 }
 
-export default function OrderDetailPage({ params }: { params: { orderId: string } }) {
-  const order = ordersData[params.orderId]
+export default async function OrderDetailPage({ params }: { params: Promise<{ orderId: string }> }) {
+  const { orderId } = await params
+  const order = ordersData[orderId]
 
   if (!order) {
     return (
@@ -59,7 +60,6 @@ export default function OrderDetailPage({ params }: { params: { orderId: string 
 
   return (
     <div className="space-y-8">
-      {/* Back */}
       <Link
         href="/account/orders"
         className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
@@ -68,7 +68,6 @@ export default function OrderDetailPage({ params }: { params: { orderId: string 
         Back to Orders
       </Link>
 
-      {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h2 className="text-2xl font-medium text-foreground">Order #{order.id}</h2>
@@ -79,7 +78,6 @@ export default function OrderDetailPage({ params }: { params: { orderId: string 
         </span>
       </div>
 
-      {/* Items */}
       <div className="bg-card border border-border">
         <div className="px-6 py-4 border-b border-border">
           <h3 className="font-medium text-foreground flex items-center gap-2">
@@ -105,7 +103,6 @@ export default function OrderDetailPage({ params }: { params: { orderId: string 
             </div>
           ))}
         </div>
-        {/* Totals */}
         <div className="px-6 py-4 border-t border-border space-y-2">
           <div className="flex justify-between text-sm text-muted-foreground">
             <span>Subtotal</span>
@@ -122,7 +119,6 @@ export default function OrderDetailPage({ params }: { params: { orderId: string 
         </div>
       </div>
 
-      {/* Info */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-card border border-border p-6">
           <h3 className="font-medium text-foreground flex items-center gap-2 mb-3">
