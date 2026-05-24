@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
 import { Header } from "@/components/layout/header"
 import { Footer } from "@/components/layout/footer"
 import { User, Package, Heart, MapPin, Settings, LogOut } from "lucide-react"
@@ -22,6 +23,12 @@ export default function AccountLayout({
 }) {
   const pathname = usePathname()
   const router = useRouter()
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+
+  useEffect(() => {
+    const savedUser = localStorage.getItem('uw-user')
+    setIsLoggedIn(!!savedUser)
+  }, [])
 
   const handleSignOut = () => {
     localStorage.removeItem('uw-user')
@@ -61,12 +68,14 @@ export default function AccountLayout({
                     {item.name}
                   </Link>
                 ))}
-                <button 
-                  onClick={handleSignOut}
-                  className="flex items-center gap-3 px-4 py-3 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-colors w-full">
-                  <LogOut className="h-4 w-4" />
-                  Sign Out
-                </button>
+                {isLoggedIn && (
+                  <button 
+                    onClick={handleSignOut}
+                    className="flex items-center gap-3 px-4 py-3 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-colors w-full">
+                    <LogOut className="h-4 w-4" />
+                    Sign Out
+                  </button>
+                )}
               </nav>
             </aside>
 
