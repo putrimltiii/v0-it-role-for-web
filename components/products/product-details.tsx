@@ -18,7 +18,7 @@ interface ProductDetailsProps {
 export function ProductDetails({ product }: ProductDetailsProps) {
   const [selectedSize, setSelectedSize] = useState<string | null>(null)
   const [selectedColor, setSelectedColor] = useState(product.colors[0])
-  const [quantity, setQuantity] = useState(1)
+  const [quantity, setQuantity] = useState<number>(1)
   const [added, setAdded] = useState(false)
   const [activeImage, setActiveImage] = useState(0)
   const addItem = useCartStore((state) => state.addItem)
@@ -29,10 +29,11 @@ export function ProductDetails({ product }: ProductDetailsProps) {
     if (!selectedSize) return
     addItem({
       product,
-      quantity,
+      quantity: 1,
       size: selectedSize,
       color: selectedColor.name,
     })
+    setQuantity(1)
     setAdded(true)
     setTimeout(() => setAdded(false), 2000)
   }
