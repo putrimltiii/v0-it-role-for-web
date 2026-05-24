@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
 import { Heart, Minus, Plus, Star, Truck, RefreshCw, Shield, CheckCircle } from "lucide-react"
@@ -16,6 +17,7 @@ interface ProductDetailsProps {
 }
 
 export function ProductDetails({ product }: ProductDetailsProps) {
+  const router = useRouter()
   const [selectedSize, setSelectedSize] = useState<string | null>(null)
   const [selectedColor, setSelectedColor] = useState(product.colors[0])
   const [quantity, setQuantity] = useState<number>(1)
@@ -36,6 +38,17 @@ export function ProductDetails({ product }: ProductDetailsProps) {
     setQuantity(1)
     setAdded(true)
     setTimeout(() => setAdded(false), 2000)
+  }
+
+  const handleBuyNow = () => {
+    if (!selectedSize) return
+    addItem({
+      product,
+      quantity: 1,
+      size: selectedSize,
+      color: selectedColor.name,
+    })
+    router.push('/checkout')
   }
 
   const handleWishlist = () => {
@@ -288,6 +301,14 @@ export function ProductDetails({ product }: ProductDetailsProps) {
                 ) : (
                   "Add to Cart"
                 )}
+              </Button>
+              <Button
+                size="lg"
+                onClick={handleBuyNow}
+                disabled={!selectedSize}
+                className="flex-1 h-14 text-sm tracking-wider uppercase bg-secondary text-foreground hover:bg-secondary/80 transition-colors"
+              >
+                Buy Now
               </Button>
               <Button
                 variant="outline"
