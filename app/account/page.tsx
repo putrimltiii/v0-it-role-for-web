@@ -1,5 +1,9 @@
+'use client'
+
 import Link from "next/link"
-import { Package, Heart, MapPin, ArrowRight } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
+import { Package, Heart, MapPin, ArrowRight, LogOut } from "lucide-react"
 
 const recentOrders = [
   {
@@ -19,16 +23,47 @@ const recentOrders = [
 ]
 
 export default function AccountPage() {
+  const router = useRouter()
+  const [userName, setUserName] = useState('Guest')
+
+  useEffect(() => {
+    // Read user data from localStorage
+    const savedUser = localStorage.getItem('uw-user')
+    if (savedUser) {
+      try {
+        const userData = JSON.parse(savedUser)
+        setUserName(userData.nama || 'Guest')
+      } catch (error) {
+        console.error('Error parsing user data:', error)
+      }
+    }
+  }, [])
+
+  const handleSignOut = () => {
+    // Clear localStorage and redirect to home
+    localStorage.removeItem('uw-user')
+    router.push('/')
+  }
+
   return (
     <div className="space-y-12">
-      {/* Welcome section */}
-      <div>
-        <h2 className="text-2xl font-medium text-foreground mb-2">
-          Welcome back, Guest
-        </h2>
-        <p className="text-muted-foreground">
-          Manage your orders, wishlist, and account settings.
-        </p>
+      {/* Welcome section with sign out */}
+      <div className="flex items-start justify-between">
+        <div>
+          <h2 className="text-2xl font-medium text-foreground mb-2">
+            Welcome back, {userName}
+          </h2>
+          <p className="text-muted-foreground">
+            Manage your orders, wishlist, and account settings.
+          </p>
+        </div>
+        <button
+          onClick={handleSignOut}
+          className="flex items-center gap-2 px-4 py-2 text-sm text-foreground hover:bg-card border border-border transition-colors"
+        >
+          <LogOut className="h-4 w-4" />
+          Sign Out
+        </button>
       </div>
 
       {/* Quick stats */}
