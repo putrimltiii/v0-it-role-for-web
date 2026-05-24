@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Image from "next/image"
 import Link from "next/link"
 import { Heart, Minus, Plus, Star, Truck, RefreshCw, Shield, CheckCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -8,6 +9,7 @@ import { formatPrice } from "@/lib/format"
 import type { Product } from "@/lib/data/products"
 import { cn } from "@/lib/utils"
 import { useCartStore } from "@/lib/store/cart"
+import { useWishlistStore } from "@/lib/store/wishlist"
 
 interface ProductDetailsProps {
   product: Product
@@ -18,7 +20,10 @@ export function ProductDetails({ product }: ProductDetailsProps) {
   const [selectedColor, setSelectedColor] = useState(product.colors[0])
   const [quantity, setQuantity] = useState(1)
   const [added, setAdded] = useState(false)
+  const [activeImage, setActiveImage] = useState(0)
   const addItem = useCartStore((state) => state.addItem)
+  const { addItem: addWishlist, removeItem: removeWishlist, isInWishlist } = useWishlistStore()
+  const wishlisted = isInWishlist(product.id)
 
   const handleAddToCart = () => {
     if (!selectedSize) return
@@ -32,9 +37,19 @@ export function ProductDetails({ product }: ProductDetailsProps) {
     setTimeout(() => setAdded(false), 2000)
   }
 
+  const handleWishlist = () => {
+    if (wishlisted) {
+      removeWishlist(product.id)
+    } else {
+      addWishlist(product)
+    }
+  }
+
   const discount = product.originalPrice
     ? Math.round((1 - product.price / product.originalPrice) * 100)
     : 0
+
+  const images = product.images && product.images.length > 0 ? product.images : []
 
   return (
     <section className="px-6 py-12">
@@ -43,22 +58,15 @@ export function ProductDetails({ product }: ProductDetailsProps) {
         <nav className="mb-8">
           <ol className="flex items-center gap-2 text-sm text-muted-foreground">
             <li>
-              <Link href="/" className="hover:text-foreground transition-colors">
-                Home
-              </Link>
+              <Link href="/" className="hover:text-foreground transition-colors">Home</Link>
             </li>
             <li>/</li>
             <li>
-              <Link href="/products" className="hover:text-foreground transition-colors">
-                Products
-              </Link>
+              <Link href="/products" className="hover:text-foreground transition-colors">Products</Link>
             </li>
             <li>/</li>
             <li>
-              <Link
-                href={`/products?category=${product.category}`}
-                className="hover:text-foreground transition-colors capitalize"
-              >
+              <Link href={`/products?category=${product.category}`} className="hover:text-foreground transition-colors capitalize">
                 {product.category}
               </Link>
             </li>
@@ -72,15 +80,25 @@ export function ProductDetails({ product }: ProductDetailsProps) {
           <div className="space-y-4">
             {/* Main image */}
             <div className="aspect-[3/4] bg-secondary relative overflow-hidden">
-              {/* Placeholder */}
-              <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
-                <svg className="w-24 h-24 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-              </div>
+              {images[activeImage] ? (
+                <Image
+                  src={images[activeImage]}
+                  alt={product.name}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  priority
+                />
+              ) : (
+                <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
+                  <svg className="w-24 h-24 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+              )}
 
               {/* Badges */}
-              <div className="absolute top-4 left-4 flex flex-col gap-2">
+              <div className="absolute top-4 left-4 flex flex-col gap-2 z-10">
                 {product.isNew && (
                   <span className="bg-foreground text-background px-3 py-1 text-xs tracking-wider uppercase">
                     New
@@ -96,15 +114,36 @@ export function ProductDetails({ product }: ProductDetailsProps) {
 
             {/* Thumbnail grid */}
             <div className="grid grid-cols-4 gap-4">
-              {[1, 2, 3, 4].map((i) => (
-                <button key={i} className="aspect-square bg-secondary relative overflow-hidden border-2 border-transparent hover:border-foreground transition-colors">
-                  <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
-                    <svg className="w-8 h-8 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                  </div>
-                </button>
-              ))}
+              {images.length > 0 ? (
+                images.map((img, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setActiveImage(i)}
+                    className={cn(
+                      "aspect-square bg-secondary relative overflow-hidden border-2 transition-colors",
+                      activeImage === i ? "border-foreground" : "border-transparent hover:border-foreground"
+                    )}
+                  >
+                    <Image
+                      src={img}
+                      alt={`${product.name} ${i + 1}`}
+                      fill
+                      className="object-cover"
+                      sizes="10vw"
+                    />
+                  </button>
+                ))
+              ) : (
+                [1, 2, 3, 4].map((i) => (
+                  <button key={i} className="aspect-square bg-secondary relative overflow-hidden border-2 border-transparent">
+                    <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
+                      <svg className="w-8 h-8 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                  </button>
+                ))
+              )}
             </div>
           </div>
 
@@ -252,9 +291,10 @@ export function ProductDetails({ product }: ProductDetailsProps) {
               <Button
                 variant="outline"
                 size="icon"
+                onClick={handleWishlist}
                 className="h-14 w-14 border-border text-foreground hover:bg-secondary"
               >
-                <Heart className="h-5 w-5" />
+                <Heart className={cn("h-5 w-5", wishlisted ? "fill-red-500 text-red-500" : "")} />
               </Button>
             </div>
 
