@@ -1,129 +1,114 @@
-'use client'
+"use client"
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import Link from 'next/link'
+import { useState } from "react"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { Eye, EyeOff } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Header } from "@/components/layout/header"
+import { Footer } from "@/components/layout/footer"
 
 export default function LoginPage() {
   const router = useRouter()
-  const [loading, setLoading] = useState(false)
-  const [formData, setFormData] = useState({
-    nama: '',
-    email: '',
-    password: '',
-  })
+  const [showPassword, setShowPassword] = useState(false)
+  const [form, setForm] = useState({ name: "", email: "", password: "" })
+  const [error, setError] = useState("")
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }))
-  }
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    setLoading(true)
-
-    try {
-      // Save user data to localStorage
-      const userData = {
-        nama: formData.nama,
-        email: formData.email,
-      }
-      localStorage.setItem('uw-user', JSON.stringify(userData))
-
-      // Redirect to account page
-      router.push('/account')
-    } catch (error) {
-      console.error('Error saving user data:', error)
-    } finally {
-      setLoading(false)
+    if (!form.name || !form.email || !form.password) {
+      setError("Semua field harus diisi.")
+      return
     }
+    // Simpan nama ke localStorage sebagai simulasi login
+    localStorage.setItem("uw-user", JSON.stringify({ name: form.name, email: form.email }))
+    router.push("/account")
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
-      <div className="w-full max-w-md">
-        <div className="mb-8">
-          <h1 className="text-3xl font-medium text-foreground mb-2">Sign In</h1>
-          <p className="text-muted-foreground">
-            Enter your details to access your account
+    <main className="min-h-screen bg-background">
+      <Header />
+      <div className="pt-24 pb-16 flex items-center justify-center min-h-screen">
+        <div className="w-full max-w-md px-6">
+          <div className="mb-10">
+            <h1 className="font-serif text-4xl font-medium tracking-tight text-foreground mb-2">
+              Sign In
+            </h1>
+            <p className="text-muted-foreground text-sm">
+              Masuk ke akun UrbanWeave kamu
+            </p>
+          </div>
+
+          {error && (
+            <div className="mb-6 px-4 py-3 bg-red-50 border border-red-200 text-red-600 text-sm">
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div>
+              <label className="block text-xs uppercase tracking-wider text-muted-foreground mb-2">
+                Nama
+              </label>
+              <input
+                type="text"
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                placeholder="Nama kamu"
+                className="w-full bg-background border border-border px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-foreground transition-colors"
+              />
+            </div>
+            <div>
+              <label className="block text-xs uppercase tracking-wider text-muted-foreground mb-2">
+                Email
+              </label>
+              <input
+                type="email"
+                value={form.email}
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
+                placeholder="email@kamu.com"
+                className="w-full bg-background border border-border px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-foreground transition-colors"
+              />
+            </div>
+            <div>
+              <label className="block text-xs uppercase tracking-wider text-muted-foreground mb-2">
+                Password
+              </label>
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={form.password}
+                  onChange={(e) => setForm({ ...form, password: e.target.value })}
+                  placeholder="••••••••"
+                  className="w-full bg-background border border-border px-4 py-3 pr-12 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-foreground transition-colors"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+            </div>
+
+            <Button
+              type="submit"
+              className="w-full bg-foreground text-background hover:bg-foreground/90 rounded-none py-6 text-xs tracking-widest uppercase"
+            >
+              Masuk
+            </Button>
+          </form>
+
+          <p className="mt-6 text-center text-sm text-muted-foreground">
+            Belum punya akun?{" "}
+            <Link href="/account/register" className="text-foreground hover:underline">
+              Daftar sekarang
+            </Link>
           </p>
         </div>
-
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Nama Field */}
-          <div className="space-y-2">
-            <label htmlFor="nama" className="block text-sm font-medium text-foreground">
-              Nama
-            </label>
-            <input
-              type="text"
-              id="nama"
-              name="nama"
-              value={formData.nama}
-              onChange={handleChange}
-              required
-              className="w-full px-4 py-2 bg-background border border-border text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-all"
-              placeholder="Masukkan nama Anda"
-            />
-          </div>
-
-          {/* Email Field */}
-          <div className="space-y-2">
-            <label htmlFor="email" className="block text-sm font-medium text-foreground">
-              Email
-            </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-              className="w-full px-4 py-2 bg-background border border-border text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-all"
-              placeholder="Masukkan email Anda"
-            />
-          </div>
-
-          {/* Password Field */}
-          <div className="space-y-2">
-            <label htmlFor="password" className="block text-sm font-medium text-foreground">
-              Password
-            </label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-              className="w-full px-4 py-2 bg-background border border-border text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-all"
-              placeholder="Masukkan password Anda"
-            />
-          </div>
-
-          {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-foreground text-background py-2 font-medium hover:bg-foreground/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-          >
-            {loading ? 'Signing in...' : 'Sign In'}
-          </button>
-        </form>
-
-        {/* Back to home link */}
-        <div className="mt-6 text-center">
-          <Link
-            href="/"
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            Back to home
-          </Link>
-        </div>
       </div>
-    </div>
+      <Footer />
+    </main>
   )
 }
