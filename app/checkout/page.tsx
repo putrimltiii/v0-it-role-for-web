@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import Image from "next/image"
 import { ChevronLeft, CreditCard, Wallet, Building2, QrCode } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useCartStore } from "@/lib/store/cart"
@@ -385,9 +386,16 @@ export default function CheckoutPage() {
                       {items.map((item) => (
                         <div
                           key={`${item.product.id}-${item.size}-${item.color}`}
-                          className="flex gap-4 items-center"
+                          className="flex gap-4 items-start border border-border p-4"
                         >
-                          <div className="w-16 h-20 bg-secondary flex-shrink-0" />
+                          <div className="w-20 h-24 bg-secondary flex-shrink-0 relative overflow-hidden">
+                            <Image
+                              src={item.product.image}
+                              alt={item.product.name}
+                              fill
+                              className="object-cover"
+                            />
+                          </div>
                           <div className="flex-1">
                             <p className="font-medium text-foreground">{item.product.name}</p>
                             <p className="text-sm text-muted-foreground">
@@ -401,6 +409,15 @@ export default function CheckoutPage() {
                       ))}
                     </div>
                   </div>
+
+                  {paymentMethod.id === "qris" && (
+                    <div className="flex flex-col items-center justify-center p-8 bg-card border border-border">
+                      <div className="w-40 h-40 bg-secondary mb-4 flex items-center justify-center border-2 border-dashed border-border">
+                        <QrCode className="w-20 h-20 text-muted-foreground" />
+                      </div>
+                      <p className="text-sm font-medium text-foreground text-center">Scan to pay with QRIS</p>
+                    </div>
+                  )}
                 </div>
               )}
 
