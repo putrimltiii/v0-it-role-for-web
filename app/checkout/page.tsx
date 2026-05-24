@@ -41,7 +41,8 @@ export default function CheckoutPage() {
 
   const subtotal = getTotalPrice()
   const freeShippingThreshold = 300000
-  const shippingCost = subtotal >= freeShippingThreshold ? 0 : shippingMethod.price
+  const isFreeShipping = subtotal >= freeShippingThreshold
+  const shippingCost = isFreeShipping ? 0 : shippingMethod.price
   const total = subtotal + shippingCost
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -273,9 +274,7 @@ export default function CheckoutPage() {
                             </div>
                           </div>
                           <span className="font-medium text-foreground">
-                            {subtotal >= freeShippingThreshold && method.id === "regular"
-                              ? "Free"
-                              : formatPrice(method.price)}
+                            {isFreeShipping ? "Free" : formatPrice(method.price)}
                           </span>
                         </label>
                       ))}

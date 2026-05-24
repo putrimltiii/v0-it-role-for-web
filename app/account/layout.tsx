@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { Header } from "@/components/layout/header"
 import { Footer } from "@/components/layout/footer"
 import { User, Package, Heart, MapPin, Settings, LogOut } from "lucide-react"
@@ -21,6 +21,12 @@ export default function AccountLayout({
   children: React.ReactNode
 }) {
   const pathname = usePathname()
+  const router = useRouter()
+
+  const handleSignOut = () => {
+    localStorage.removeItem('uw-user')
+    router.push('/')
+  }
 
   return (
     <main className="min-h-screen bg-background">
@@ -55,7 +61,9 @@ export default function AccountLayout({
                     {item.name}
                   </Link>
                 ))}
-                <button className="flex items-center gap-3 px-4 py-3 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-colors w-full">
+                <button 
+                  onClick={handleSignOut}
+                  className="flex items-center gap-3 px-4 py-3 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-colors w-full">
                   <LogOut className="h-4 w-4" />
                   Sign Out
                 </button>

@@ -1,4 +1,8 @@
+"use client"
+
+import { useEffect, useState } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Package, Heart, MapPin, ArrowRight } from "lucide-react"
 
 const recentOrders = [
@@ -6,7 +10,7 @@ const recentOrders = [
     id: "UW12345678",
     date: "15 Maret 2026",
     status: "Delivered",
-    total: 447000,
+    total: 697000,
     items: 3,
   },
   {
@@ -19,19 +23,33 @@ const recentOrders = [
 ]
 
 export default function AccountPage() {
+  const router = useRouter()
+  const [userName, setUserName] = useState("Guest")
+
+  useEffect(() => {
+    const stored = localStorage.getItem("uw-user")
+    if (stored) {
+      const user = JSON.parse(stored)
+      setUserName(user.name)
+    }
+  }, [])
+
+  const handleSignOut = () => {
+    localStorage.removeItem("uw-user")
+    router.push("/")
+  }
+
   return (
     <div className="space-y-12">
-      {/* Welcome section */}
       <div>
         <h2 className="text-2xl font-medium text-foreground mb-2">
-          Welcome back, Guest
+          Welcome back, {userName}
         </h2>
         <p className="text-muted-foreground">
           Manage your orders, wishlist, and account settings.
         </p>
       </div>
 
-      {/* Quick stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Link
           href="/account/orders"
@@ -70,7 +88,6 @@ export default function AccountPage() {
         </Link>
       </div>
 
-      {/* Recent orders */}
       <div>
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-lg font-medium text-foreground">Recent Orders</h3>
@@ -82,45 +99,42 @@ export default function AccountPage() {
           </Link>
         </div>
 
-        {recentOrders.length > 0 ? (
-          <div className="space-y-4">
-            {recentOrders.map((order) => (
-              <div
-                key={order.id}
-                className="bg-card border border-border p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4"
-              >
-                <div>
-                  <p className="font-medium text-foreground">Order #{order.id}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {order.date} · {order.items} {order.items === 1 ? "item" : "items"}
-                  </p>
-                </div>
-                <div className="flex items-center gap-4">
-                  <span className="inline-flex items-center px-3 py-1 bg-accent/20 text-accent text-xs tracking-wider uppercase">
-                    {order.status}
-                  </span>
-                  <Link
-                    href={`/account/orders/${order.id}`}
-                    className="text-sm text-foreground hover:text-muted-foreground transition-colors"
-                  >
-                    View Details
-                  </Link>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="bg-card border border-border p-12 text-center">
-            <Package className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <p className="text-muted-foreground mb-4">No orders yet</p>
-            <Link
-              href="/products"
-              className="text-sm text-foreground hover:text-muted-foreground transition-colors underline"
+        <div className="space-y-4">
+          {recentOrders.map((order) => (
+            <div
+              key={order.id}
+              className="bg-card border border-border p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4"
             >
-              Start shopping
-            </Link>
-          </div>
-        )}
+              <div>
+                <p className="font-medium text-foreground">Order #{order.id}</p>
+                <p className="text-sm text-muted-foreground">
+                  {order.date} · {order.items} {order.items === 1 ? "item" : "items"}
+                </p>
+              </div>
+              <div className="flex items-center gap-4">
+                <span className="inline-flex items-center px-3 py-1 bg-accent/20 text-accent text-xs tracking-wider uppercase">
+                  {order.status}
+                </span>
+                <Link
+                  href={`/account/orders/${order.id}`}
+                  className="text-sm text-foreground hover:text-muted-foreground transition-colors"
+                >
+                  View Details
+                </Link>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Sign out button */}
+      <div className="pt-4 border-t border-border">
+        <button
+          onClick={handleSignOut}
+          className="text-sm text-muted-foreground hover:text-foreground transition-colors uppercase tracking-wider"
+        >
+          Sign Out
+        </button>
       </div>
     </div>
   )
