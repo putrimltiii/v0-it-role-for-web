@@ -85,7 +85,7 @@ export default function AccountLayout({
                       Sign In
                     </Link>
                     <Link
-                      href="/account/signup"
+                      href="/account/register"
                       className="flex items-center gap-3 px-4 py-3 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-colors"
                     >
                       <User className="h-4 w-4" />

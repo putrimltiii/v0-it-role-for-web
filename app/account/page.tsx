@@ -4,35 +4,37 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Package, Heart, MapPin, ArrowRight } from "lucide-react"
-
-const recentOrders = [
-  {
-    id: "UW12345678",
-    date: "15 Maret 2026",
-    status: "Delivered",
-    total: 697000,
-    items: 3,
-  },
-  {
-    id: "UW12345679",
-    date: "28 Februari 2026",
-    status: "Delivered",
-    total: 249000,
-    items: 1,
-  },
-]
+import { fetchUserOrders, type Order } from "@/lib/supabase/orders"
+import { formatPrice } from "@/lib/format"
 
 export default function AccountPage() {
   const router = useRouter()
   const [userName, setUserName] = useState("Guest")
+  const [userEmail, setUserEmail] = useState("")
+  const [recentOrders, setRecentOrders] = useState<Order[]>([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const stored = localStorage.getItem("uw-user")
     if (stored) {
       const user = JSON.parse(stored)
-      setUserName(user.name)
+      setUserName(user.nama || user.name || "Guest")
+      setUserEmail(user.email || "")
     }
   }, [])
+
+  useEffect(() => {
+    async function loadOrders() {
+      if (userEmail) {
+        setLoading(true)
+        const orders = await fetchUserOrders(userEmail)
+        setRecentOrders(orders.slice(0, 2))
+        setLoading(false)
+      }
+    }
+
+    loadOrders()
+  }, [userEmail])
 
   const handleSignOut = () => {
     localStorage.removeItem("uw-user")
@@ -100,30 +102,40 @@ export default function AccountPage() {
         </div>
 
         <div className="space-y-4">
-          {recentOrders.map((order) => (
-            <div
-              key={order.id}
-              className="bg-card border border-border p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4"
-            >
-              <div>
-                <p className="font-medium text-foreground">Order #{order.id}</p>
-                <p className="text-sm text-muted-foreground">
-                  {order.date} · {order.items} {order.items === 1 ? "item" : "items"}
-                </p>
+          {loading ? (
+            <p className="text-muted-foreground">Loading orders...</p>
+          ) : recentOrders.length > 0 ? (
+            recentOrders.map((order) => (
+              <div
+                key={order.id}
+                className="bg-card border border-border p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4"
+              >
+                <div>
+                  <p className="font-medium text-foreground">Order #{order.order_number}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {new Date(order.date).toLocaleDateString('id-ID', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric'
+                    })} · {order.items.length} {order.items.length === 1 ? "item" : "items"}
+                  </p>
+                </div>
+                <div className="flex items-center gap-4">
+                  <span className="inline-flex items-center px-3 py-1 bg-accent/20 text-accent text-xs tracking-wider uppercase">
+                    {order.status}
+                  </span>
+                  <Link
+                    href={`/account/orders/${order.id}`}
+                    className="text-sm text-foreground hover:text-muted-foreground transition-colors"
+                  >
+                    View Details
+                  </Link>
+                </div>
               </div>
-              <div className="flex items-center gap-4">
-                <span className="inline-flex items-center px-3 py-1 bg-accent/20 text-accent text-xs tracking-wider uppercase">
-                  {order.status}
-                </span>
-                <Link
-                  href={`/account/orders/${order.id}`}
-                  className="text-sm text-foreground hover:text-muted-foreground transition-colors"
-                >
-                  View Details
-                </Link>
-              </div>
-            </div>
-          ))}
+            ))
+          ) : (
+            <p className="text-muted-foreground">No orders yet</p>
+          )}
         </div>
       </div>
 

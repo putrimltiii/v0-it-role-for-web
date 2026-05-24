@@ -3,11 +3,13 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import Image from "next/image"
 import { ChevronLeft, CreditCard, Wallet, Building2, QrCode } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useCartStore } from "@/lib/store/cart"
 import { formatPrice } from "@/lib/format"
 import { cn } from "@/lib/utils"
+import { createOrder } from "@/lib/supabase/orders"
 
 const paymentMethods = [
   { id: "bank", name: "Bank Transfer", icon: Building2, description: "BCA, Mandiri, BNI, BRI" },
@@ -28,6 +30,7 @@ export default function CheckoutPage() {
   const [step, setStep] = useState(1)
   const [shippingMethod, setShippingMethod] = useState(shippingMethods[0])
   const [paymentMethod, setPaymentMethod] = useState(paymentMethods[0])
+  const [userEmail, setUserEmail] = useState("")
   const [formData, setFormData] = useState({
     email: "",
     phone: "",
@@ -43,6 +46,9 @@ export default function CheckoutPage() {
     const savedUser = localStorage.getItem('uw-user')
     if (!savedUser) {
       router.push('/account/login')
+    } else {
+      const user = JSON.parse(savedUser)
+      setUserEmail(user.email || "")
     }
   }, [router])
 
@@ -61,9 +67,24 @@ export default function CheckoutPage() {
     if (step < 3) {
       setStep(step + 1)
     } else {
-      // Process order
-      clearCart()
-      router.push("/checkout/success")
+      // Process order - save to Supabase then redirect
+      const orderNumber = `UW${Date.now()}`
+      const orderItems = items.map(item => ({
+        id: item.id,
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity,
+      }))
+
+      createOrder(userEmail, orderNumber, orderItems, total).then(() => {
+        clearCart()
+        router.push("/checkout/success")
+      }).catch(error => {
+        console.error('Error creating order:', error)
+        // Still redirect even if Supabase save fails
+        clearCart()
+        router.push("/checkout/success")
+      })
     }
   }
 
@@ -365,9 +386,16 @@ export default function CheckoutPage() {
                       {items.map((item) => (
                         <div
                           key={`${item.product.id}-${item.size}-${item.color}`}
-                          className="flex gap-4 items-center"
+                          className="flex gap-4 items-start border border-border p-4"
                         >
-                          <div className="w-16 h-20 bg-secondary flex-shrink-0" />
+                          <div className="w-20 h-24 bg-secondary flex-shrink-0 relative overflow-hidden">
+                            <Image
+                              src={item.product.images[0]}
+                              alt={item.product.name}
+                              fill
+                              className="object-cover"
+                            />
+                          </div>
                           <div className="flex-1">
                             <p className="font-medium text-foreground">{item.product.name}</p>
                             <p className="text-sm text-muted-foreground">
@@ -381,6 +409,15 @@ export default function CheckoutPage() {
                       ))}
                     </div>
                   </div>
+
+                  {paymentMethod.id === "qris" && (
+                    <div className="flex flex-col items-center justify-center p-8 bg-card border border-border">
+                      <div className="w-40 h-40 bg-secondary mb-4 flex items-center justify-center border-2 border-dashed border-border">
+                        <QrCode className="w-20 h-20 text-muted-foreground" />
+                      </div>
+                      <p className="text-sm font-medium text-foreground text-center">Scan to pay with QRIS</p>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -417,7 +454,13 @@ export default function CheckoutPage() {
                     key={`${item.product.id}-${item.size}-${item.color}`}
                     className="flex gap-3"
                   >
-                    <div className="w-12 h-16 bg-secondary flex-shrink-0 relative">
+                    <div className="w-12 h-16 bg-secondary flex-shrink-0 relative overflow-hidden">
+                      <Image
+                        src={item.product.images[0]}
+                        alt={item.product.name}
+                        fill
+                        className="object-cover"
+                      />
                       <span className="absolute -top-2 -right-2 w-5 h-5 bg-muted-foreground text-background text-xs rounded-full flex items-center justify-center">
                         {item.quantity}
                       </span>

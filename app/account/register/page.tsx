@@ -8,20 +8,20 @@ import { Button } from "@/components/ui/button"
 import { Header } from "@/components/layout/header"
 import { Footer } from "@/components/layout/footer"
 
-export default function LoginPage() {
+export default function RegisterPage() {
   const router = useRouter()
   const [showPassword, setShowPassword] = useState(false)
-  const [form, setForm] = useState({ name: "", email: "", password: "" })
+  const [form, setForm] = useState({ nama: "", email: "", password: "" })
   const [error, setError] = useState("")
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!form.name || !form.email || !form.password) {
+    if (!form.nama || !form.email || !form.password) {
       setError("Semua field harus diisi.")
       return
     }
-    // Simpan nama ke localStorage sebagai simulasi login
-    localStorage.setItem("uw-user", JSON.stringify({ name: form.name, email: form.email }))
+    // Simpan data ke localStorage
+    localStorage.setItem("uw-user", JSON.stringify({ nama: form.nama, email: form.email }))
     router.push("/account")
   }
 
@@ -32,10 +32,10 @@ export default function LoginPage() {
         <div className="w-full max-w-md px-6">
           <div className="mb-10">
             <h1 className="font-serif text-4xl font-medium tracking-tight text-foreground mb-2">
-              Sign In
+              Sign Up
             </h1>
             <p className="text-muted-foreground text-sm">
-              Masuk ke akun UrbanWeave kamu
+              Buat akun UrbanWeave kamu sekarang
             </p>
           </div>
 
@@ -52,8 +52,8 @@ export default function LoginPage() {
               </label>
               <input
                 type="text"
-                value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                value={form.nama}
+                onChange={(e) => setForm({ ...form, nama: e.target.value })}
                 placeholder="Nama kamu"
                 className="w-full bg-background border border-border px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-foreground transition-colors"
               />
@@ -96,14 +96,14 @@ export default function LoginPage() {
               type="submit"
               className="w-full bg-foreground text-background hover:bg-foreground/90 rounded-none py-6 text-xs tracking-widest uppercase"
             >
-              Masuk
+              Daftar
             </Button>
           </form>
 
           <p className="mt-6 text-center text-sm text-muted-foreground">
-            Belum punya akun?{" "}
-            <Link href="/account/register" className="text-foreground hover:underline">
-              Daftar sekarang
+            Sudah punya akun?{" "}
+            <Link href="/account/login" className="text-foreground hover:underline">
+              Masuk sekarang
             </Link>
           </p>
         </div>
@@ -112,4 +112,3 @@ export default function LoginPage() {
     </main>
   )
 }
-
