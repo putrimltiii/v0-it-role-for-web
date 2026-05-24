@@ -68,13 +68,30 @@ export default function AccountLayout({
                     {item.name}
                   </Link>
                 ))}
-                {isLoggedIn && (
+                {isLoggedIn ? (
                   <button 
                     onClick={handleSignOut}
                     className="flex items-center gap-3 px-4 py-3 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-colors w-full">
                     <LogOut className="h-4 w-4" />
                     Sign Out
                   </button>
+                ) : (
+                  <div className="space-y-1 pt-4 border-t border-border">
+                    <Link
+                      href="/account/login"
+                      className="flex items-center gap-3 px-4 py-3 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-colors"
+                    >
+                      <User className="h-4 w-4" />
+                      Sign In
+                    </Link>
+                    <Link
+                      href="/account/signup"
+                      className="flex items-center gap-3 px-4 py-3 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-colors"
+                    >
+                      <User className="h-4 w-4" />
+                      Sign Up
+                    </Link>
+                  </div>
                 )}
               </nav>
             </aside>
