@@ -28,7 +28,7 @@ export default function AdminLayout({
   useEffect(() => {
     const adminToken = localStorage.getItem('uw-admin')
     if (!adminToken) {
-      router.push('/')
+    router.push('/admin/login')
     } else {
       setIsAdmin(true)
     }
