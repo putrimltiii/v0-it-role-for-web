@@ -4,7 +4,9 @@ import { ChevronLeft, Package, MapPin, CreditCard } from "lucide-react"
 import { fetchOrderById } from "@/lib/supabase/orders"
 import { formatPrice } from "@/lib/format"
 
-export default async function OrderDetailPage({ params }: { params: Promise<{ orderId: string }> }) {\n  const { orderId } = await params\n  const order = await fetchOrderById(orderId)
+export default async function OrderDetailPage({ params }: { params: Promise<{ orderId: string }> }) {
+  const { orderId } = await params
+  const order = await fetchOrderById(orderId)
 
   if (!order) {
     return (
