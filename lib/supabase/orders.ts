@@ -84,3 +84,23 @@ export async function createOrder(
     return null
   }
 }
+
+export async function updateOrderStatus(orderId: string, status: string): Promise<boolean> {
+  try {
+    const supabase = createClient()
+    const { error } = await supabase
+      .from('orders')
+      .update({ status })
+      .eq('id', orderId)
+
+    if (error) {
+      console.error('Error updating order status:', error)
+      return false
+    }
+
+    return true
+  } catch (error) {
+    console.error('Error in updateOrderStatus:', error)
+    return false
+  }
+}
