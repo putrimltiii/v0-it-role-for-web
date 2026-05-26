@@ -31,6 +31,27 @@ export async function fetchUserOrders(email: string): Promise<Order[]> {
   }
 }
 
+export async function fetchOrderById(orderId: string): Promise<Order | null> {
+  try {
+    const supabase = createClient()
+    const { data, error } = await supabase
+      .from('orders')
+      .select('*')
+      .eq('id', orderId)
+      .single()
+
+    if (error) {
+      console.error('Error fetching order:', error)
+      return null
+    }
+
+    return data
+  } catch (error) {
+    console.error('Error in fetchOrderById:', error)
+    return null
+  }
+}
+
 export async function createOrder(
   userEmail: string,
   orderNumber: string,
