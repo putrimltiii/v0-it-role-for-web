@@ -3,28 +3,16 @@ import Image from "next/image"
 
 const categories = [
   {
-    name: "Tops",
-    description: "T-Shirts, Hoodies, Kemeja",
-    href: "/products?category=tops",
-    image: "/images/category-tops.jpg",
+    name: "Kaos",
+    description: "Basic Polos, Premium, Motif",
+    href: "/products?category=kaos",
+    image: "/images/product-1.jpg",
   },
   {
-    name: "Bottoms",
-    description: "Jogger, Cargo, Jeans",
-    href: "/products?category=bottoms",
-    image: "/images/category-bottoms.jpg",
-  },
-  {
-    name: "Outerwear",
-    description: "Jaket, Bomber, Varsity",
-    href: "/products?category=outerwear",
-    image: "/images/category-outerwear.jpg",
-  },
-  {
-    name: "Dress",
-    description: "A-line, Maxi, Midi",
-    href: "/products?category=dress",
-    image: "/images/category-dress.jpg",
+    name: "Topi",
+    description: "Baseball, Dad Hat, Bucket, Snapback",
+    href: "/products?category=topi",
+    image: "/images/product-11.jpg",
   },
 ]
 
@@ -41,7 +29,7 @@ export function CategoryGrid() {
           </h2>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
           {categories.map((category) => (
             <Link
               key={category.name}
